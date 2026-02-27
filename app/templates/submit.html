@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Submit — The Turing Review{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <h1 class="text-3xl font-bold text-gray-100 mb-2">Submit a Manuscript</h1>
+    <p class="text-gray-400 mb-8">Your paper will be reviewed by three independent AI reviewers. All topics and formats are welcome.</p>
+
+    <form action="/submit" method="post" enctype="multipart/form-data" class="glass-card rounded-2xl p-8 space-y-6">
+        <!-- Title -->
+        <div>
+            <label for="title" class="block text-sm font-semibold text-gray-300 mb-1">Title *</label>
+            <input type="text" id="title" name="title" required
+                class="w-full border border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-amber-400 focus:border-transparent outline-none bg-gray-800/80 text-gray-100 placeholder-gray-500"
+                placeholder="Your paper title">
+        </div>
+
+        <!-- Abstract -->
+        <div>
+            <label for="abstract" class="block text-sm font-semibold text-gray-300 mb-1">Abstract *</label>
+            <textarea id="abstract" name="abstract" rows="5" required
+                class="w-full border border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-amber-400 focus:border-transparent outline-none bg-gray-800/80 text-gray-100 placeholder-gray-500"
+                placeholder="A brief summary of your paper..."></textarea>
+        </div>
+
+        <!-- Authors -->
+        <div>
+            <label for="authors" class="block text-sm font-semibold text-gray-300 mb-1">Authors</label>
+            <input type="text" id="authors" name="authors" value="Anonymous"
+                class="w-full border border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-amber-400 focus:border-transparent outline-none bg-gray-800/80 text-gray-100 placeholder-gray-500"
+                placeholder="Author names (or leave as Anonymous)">
+        </div>
+
+        <!-- Email -->
+        <div>
+            <label for="email" class="block text-sm font-semibold text-gray-300 mb-1">Email *</label>
+            <input type="email" id="email" name="email" required
+                class="w-full border border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-amber-400 focus:border-transparent outline-none bg-gray-800/80 text-gray-100 placeholder-gray-500"
+                placeholder="your@email.com">
+            <p class="text-xs text-gray-500 mt-1">We'll notify you when the AI review is complete. Not displayed publicly.</p>
+        </div>
+
+        <!-- Keywords -->
+        <div>
+            <label for="keywords" class="block text-sm font-semibold text-gray-300 mb-1">Keywords</label>
+            <input type="text" id="keywords" name="keywords"
+                class="w-full border border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-amber-400 focus:border-transparent outline-none bg-gray-800/80 text-gray-100 placeholder-gray-500"
+                placeholder="machine learning, NLP, robotics, ...">
+        </div>
+
+        <!-- File Upload -->
+        <div>
+            <label for="file" class="block text-sm font-semibold text-gray-300 mb-1">Manuscript File * (PDF or Markdown)</label>
+            <input type="file" id="file" name="file" required accept=".pdf,.md,.txt,.tex"
+                class="w-full border border-gray-600 rounded-lg px-4 py-2 bg-gray-800/80 text-gray-300 file:mr-4 file:py-1 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-amber-500/20 file:text-amber-400 hover:file:bg-amber-500/30">
+            <p class="text-xs text-gray-500 mt-1">Supported formats: PDF, Markdown (.md), Plain text (.txt), LaTeX (.tex)</p>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="pt-4">
+            <button type="submit"
+                class="btn-glow w-full bg-amber-500 hover:bg-amber-400 text-turing-900 font-bold py-3 px-6 rounded-lg shadow-lg transition text-lg">
+                Submit for AI Review
+            </button>
+            <p class="text-xs text-gray-500 mt-3 text-center font-mono">
+                REVIEW_PIPELINE :: Claude + GPT + DeepSeek &middot; ~120s
+            </p>
+        </div>
+    </form>
+</div>
+{% endblock %}

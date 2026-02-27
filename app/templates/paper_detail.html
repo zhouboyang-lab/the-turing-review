@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% block title %}{{ paper.title }} — The Turing Review{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <!-- Paper Header -->
+    <div class="glass-card rounded-2xl p-8 mb-6">
+        <div class="flex items-start justify-between mb-4">
+            <span class="px-3 py-1 rounded-full text-xs font-semibold
+                {% if paper.status == 'accepted' %}bg-green-900/50 text-green-400
+                {% elif paper.status == 'rejected' %}bg-red-900/50 text-red-400
+                {% elif paper.status == 'revision' %}bg-yellow-900/50 text-yellow-400
+                {% elif paper.status == 'under_review' %}bg-blue-900/50 text-blue-400
+                {% else %}bg-gray-800 text-gray-400{% endif %}">
+                {{ paper.status | replace('_', ' ') | title }}
+            </span>
+            <span class="text-sm text-gray-500 font-mono">TR-{{ "%04d"|format(paper.id) }}</span>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-100 mb-3">{{ paper.title }}</h1>
+        <p class="text-gray-400 mb-2"><strong class="text-gray-300">Authors:</strong> {{ paper.authors }}</p>
+        {% if paper.keywords %}
+        <div class="flex flex-wrap gap-2 mb-4">
+            {% for kw in paper.keywords.split(',') %}
+            <span class="bg-gray-800 text-gray-400 text-xs px-2 py-1 rounded font-mono">{{ kw.strip() }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+        <p class="text-sm text-gray-500 font-mono">
+            Submitted: {{ paper.submitted_at.strftime('%Y-%m-%d %H:%M UTC') }}
+            {% if paper.decided_at %} &middot; Decision: {{ paper.decided_at.strftime('%Y-%m-%d %H:%M UTC') }}{% endif %}
+        </p>
+
+        <div class="mt-6 border-t border-gray-700 pt-6">
+            <h2 class="text-lg font-semibold text-gray-200 mb-2">Abstract</h2>
+            <p class="text-gray-400 leading-relaxed">{{ paper.abstract }}</p>
+        </div>
+    </div>
+
+    <!-- Review Status / Loading -->
+    {% if paper.status == 'under_review' or paper.status == 'submitted' %}
+    <div class="glass-card rounded-xl p-8 mb-6 text-center border border-blue-500/30">
+        <div class="flex justify-center mb-4">
+            <span class="loading-dot"></span>
+            <span class="loading-dot mx-2"></span>
+            <span class="loading-dot"></span>
+        </div>
+        <p class="text-gray-200 font-semibold">AI Reviewers are evaluating this manuscript...</p>
+        <p class="text-gray-400 text-sm mt-2">Three AI models are independently analyzing your work. This usually takes 1-2 minutes.</p>
+        <p class="text-gray-500 text-xs mt-3 font-mono">REVIEW_STATUS :: IN_PROGRESS &middot; Refresh to check updates</p>
+    </div>
+    {% endif %}
+
+    <!-- Peer Reviews -->
+    {% if paper.reviews %}
+    <h2 class="text-2xl font-bold text-gray-100 mb-4">Peer Reviews</h2>
+    <div class="space-y-6 mb-8">
+        {% for review in paper.reviews %}
+        <div class="reviewer-card glass-card rounded-xl overflow-hidden
+            {% if review.is_guest %}reviewer-guest border-t-4
+            {% elif review.model_provider == 'claude' %}reviewer-claude border-t-4
+            {% elif review.model_provider == 'openai' %}reviewer-gpt border-t-4
+            {% elif review.model_provider == 'deepseek' %}reviewer-deepseek border-t-4
+            {% else %}border-t-4 border-gray-600{% endif %}">
+            <!-- Reviewer Header -->
+            <div class="px-6 py-4 border-b border-gray-700 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="reviewer-icon w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-xs
+                        {% if review.is_guest %}bg-gradient-to-br from-cyan-500 to-blue-600
+                        {% elif review.model_provider == 'claude' %}
+                        {% elif review.model_provider == 'openai' %}
+                        {% elif review.model_provider == 'deepseek' %}
+                        {% endif %}">
+                        {% if review.is_guest %}G{% else %}{{ review.model_provider[0] | upper }}{% endif %}
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-gray-100">{{ review.reviewer_name }}</h3>
+                        {% if review.is_guest %}
+                        <span class="badge-{{ 'associate' if review.guest_level == 2 else 'candidate' }} text-xs ml-0">
+                            {% if review.guest_level == 2 %}Associate{% else %}Candidate{% endif %}
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+                <span class="px-3 py-1 rounded-full text-xs font-semibold
+                    {% if review.decision == 'accept' %}bg-green-900/50 text-green-400
+                    {% elif review.decision == 'reject' %}bg-red-900/50 text-red-400
+                    {% else %}bg-yellow-900/50 text-yellow-400{% endif %}">
+                    {{ review.decision | replace('_', ' ') | title }}
+                </span>
+            </div>
+
+            <div class="p-6">
+                <!-- Scores -->
+                <div class="grid grid-cols-3 gap-4 mb-6">
+                    <div class="text-center p-3 rounded-lg bg-gray-800/60">
+                        <div class="text-2xl font-bold text-gray-100">{{ review.novelty_score }}<span class="text-sm text-gray-500">/10</span></div>
+                        <div class="text-xs text-gray-500 font-mono">NOVELTY</div>
+                    </div>
+                    <div class="text-center p-3 rounded-lg bg-gray-800/60">
+                        <div class="text-2xl font-bold text-gray-100">{{ review.soundness_score }}<span class="text-sm text-gray-500">/10</span></div>
+                        <div class="text-xs text-gray-500 font-mono">SOUNDNESS</div>
+                    </div>
+                    <div class="text-center p-3 rounded-lg bg-gray-800/60">
+                        <div class="text-2xl font-bold text-gray-100">{{ review.writing_score }}<span class="text-sm text-gray-500">/10</span></div>
+                        <div class="text-xs text-gray-500 font-mono">WRITING</div>
+                    </div>
+                </div>
+
+                <!-- Strengths -->
+                <div class="mb-4">
+                    <h4 class="text-sm font-semibold text-green-400 mb-2 flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span> Strengths
+                    </h4>
+                    <ul class="list-disc list-inside text-sm text-gray-400 space-y-1">
+                        {% for s in review.strengths_list %}
+                        <li>{{ s }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <!-- Weaknesses -->
+                <div class="mb-4">
+                    <h4 class="text-sm font-semibold text-red-400 mb-2 flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 bg-red-500 rounded-full"></span> Weaknesses
+                    </h4>
+                    <ul class="list-disc list-inside text-sm text-gray-400 space-y-1">
+                        {% for w in review.weaknesses_list %}
+                        <li>{{ w }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <!-- Detailed Comments -->
+                <div class="mb-4">
+                    <h4 class="text-sm font-semibold text-gray-300 mb-2">Detailed Comments</h4>
+                    <p class="text-sm text-gray-400 whitespace-pre-wrap leading-relaxed">{{ review.detailed_comments }}</p>
+                </div>
+
+                <!-- Suggestions -->
+                {% if review.suggestions %}
+                <div>
+                    <h4 class="text-sm font-semibold text-gray-300 mb-2">Suggestions for Authors</h4>
+                    <p class="text-sm text-gray-400 whitespace-pre-wrap leading-relaxed">{{ review.suggestions }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Editorial Decision -->
+    {% if paper.editorial_decision %}
+    <div class="rounded-xl overflow-hidden mb-8 shadow-lg">
+        <div class="px-6 py-4 bg-gradient-to-r from-turing-900 to-turing-800 text-white">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 bg-amber-400 rounded-full"></div>
+                    <h2 class="text-lg font-bold">Editorial Decision</h2>
+                </div>
+                <span class="px-3 py-1 rounded-full text-xs font-bold
+                    {% if paper.editorial_decision.final_decision == 'accept' %}bg-green-400 text-green-900
+                    {% elif paper.editorial_decision.final_decision == 'reject' %}bg-red-400 text-red-900
+                    {% else %}bg-yellow-400 text-yellow-900{% endif %}">
+                    {{ paper.editorial_decision.final_decision | replace('_', ' ') | title }}
+                </span>
+            </div>
+        </div>
+        <div class="glass-card p-6">
+            <p class="text-sm text-gray-400 whitespace-pre-wrap leading-relaxed">{{ paper.editorial_decision.decision_letter }}</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="text-center">
+        <a href="/papers" class="text-gray-500 hover:text-amber-400 text-sm transition">&larr; Back to all papers</a>
+    </div>
+</div>
+{% endblock %}

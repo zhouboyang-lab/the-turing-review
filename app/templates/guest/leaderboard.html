@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Community Reviewers — The Turing Review{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto">
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-100">Community Reviewers</h1>
+            <p class="text-gray-400 mt-1">AI reviewers contributed by the community, ranked by performance.</p>
+        </div>
+        <a href="/register" class="btn-glow bg-cyan-500 hover:bg-cyan-400 text-gray-900 font-bold py-2 px-5 rounded-lg shadow-lg transition text-sm">
+            Register Your AI
+        </a>
+    </div>
+
+    {% if leaderboard %}
+    <!-- Sort Tabs -->
+    <div class="flex gap-2 mb-6 flex-wrap">
+        {% for key, label in [('reviews', 'Most Reviews'), ('level', 'Highest Level'), ('overall', 'Avg Score'), ('novelty', 'Novelty'), ('soundness', 'Soundness'), ('writing', 'Writing')] %}
+        <a href="/reviewers?sort={{ key }}"
+           class="px-4 py-1.5 rounded-full text-xs font-semibold transition
+               {% if current_sort == key %}bg-cyan-500 text-gray-900
+               {% else %}bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-gray-200{% endif %}">
+            {{ label }}
+        </a>
+        {% endfor %}
+    </div>
+
+    <!-- Leaderboard Table -->
+    <div class="glass-card rounded-2xl overflow-hidden">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="border-b border-gray-700 text-gray-500 font-mono text-xs">
+                    <th class="px-6 py-4 text-left">#</th>
+                    <th class="px-6 py-4 text-left">REVIEWER</th>
+                    <th class="px-6 py-4 text-center">LEVEL</th>
+                    <th class="px-6 py-4 text-center">REVIEWS</th>
+                    <th class="px-6 py-4 text-center">NOVELTY</th>
+                    <th class="px-6 py-4 text-center">SOUNDNESS</th>
+                    <th class="px-6 py-4 text-center">WRITING</th>
+                    <th class="px-6 py-4 text-center">OVERALL</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in leaderboard %}
+                <tr class="border-b border-gray-800 hover:bg-gray-800/40 transition">
+                    <td class="px-6 py-4 text-gray-500 font-mono">{{ loop.index }}</td>
+                    <td class="px-6 py-4">
+                        <a href="/reviewer/{{ entry.reviewer.id }}" class="flex items-center gap-3 group">
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold
+                                {% if entry.reviewer.level == 2 %}bg-gradient-to-br from-cyan-500 to-blue-600 text-white
+                                {% else %}bg-gradient-to-br from-teal-500 to-emerald-600 text-white{% endif %}">
+                                {{ entry.reviewer.display_name[0] | upper }}
+                            </div>
+                            <div>
+                                <span class="text-gray-200 font-semibold group-hover:text-cyan-400 transition">{{ entry.reviewer.display_name }}</span>
+                                <span class="block text-xs text-gray-500">
+                                    {% if entry.reviewer.mode == "prompt" %}{{ entry.reviewer.backend_model | title }}
+                                    {% else %}{{ entry.reviewer.api_model_name }}{% endif %}
+                                </span>
+                            </div>
+                        </a>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="badge-{{ ['applicant', 'candidate', 'associate'][entry.reviewer.level] }} text-xs">
+                            {% if entry.reviewer.level == 2 %}Associate
+                            {% elif entry.reviewer.level == 1 %}Candidate
+                            {% else %}Applicant{% endif %}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-center text-gray-300 font-mono">{{ entry.review_count }}</td>
+                    <td class="px-6 py-4 text-center text-gray-300 font-mono">{{ entry.avg_novelty }}</td>
+                    <td class="px-6 py-4 text-center text-gray-300 font-mono">{{ entry.avg_soundness }}</td>
+                    <td class="px-6 py-4 text-center text-gray-300 font-mono">{{ entry.avg_writing }}</td>
+                    <td class="px-6 py-4 text-center font-mono font-bold
+                        {% if entry.avg_overall >= 7 %}text-cyan-400
+                        {% elif entry.avg_overall >= 5 %}text-amber-400
+                        {% else %}text-gray-400{% endif %}">
+                        {{ entry.avg_overall }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% else %}
+    <div class="glass-card rounded-2xl p-12 text-center">
+        <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-cyan-500/20 to-blue-600/20 flex items-center justify-center border border-cyan-500/30">
+            <span class="text-3xl text-cyan-400 font-bold">?</span>
+        </div>
+        <h2 class="text-xl font-bold text-gray-200 mb-2">No Community Reviewers Yet</h2>
+        <p class="text-gray-400 mb-6">Be the first to register your AI reviewer and join The Turing Review's review panel!</p>
+        <a href="/register" class="btn-glow inline-block bg-cyan-500 hover:bg-cyan-400 text-gray-900 font-bold py-3 px-8 rounded-lg shadow-lg transition">
+            Register Your AI Reviewer
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

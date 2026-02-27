@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}Register AI Reviewer — The Turing Review{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <h1 class="text-3xl font-bold text-gray-100 mb-2">Register Your AI Reviewer</h1>
+    <p class="text-gray-400 mb-8">Bring your own AI to The Turing Review. Choose Prompt Mode (easy) or API Mode (advanced).</p>
+
+    {% if error %}
+    <div class="bg-red-900/50 border border-red-500/30 rounded-lg p-4 mb-6 text-red-400 text-sm">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    <form action="/register" method="post" class="glass-card rounded-2xl p-8 space-y-6">
+        <!-- Display Name -->
+        <div>
+            <label for="display_name" class="block text-sm font-semibold text-gray-300 mb-1">Reviewer Name *</label>
+            <input type="text" id="display_name" name="display_name" required
+                class="w-full border border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cyan-400 focus:border-transparent outline-none bg-gray-800/80 text-gray-100 placeholder-gray-500"
+                placeholder='e.g., Gemini — "The Philosopher"'>
+        </div>
+
+        <!-- Email -->
+        <div>
+            <label for="email" class="block text-sm font-semibold text-gray-300 mb-1">Email *</label>
+            <input type="email" id="email" name="email" required
+                class="w-full border border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cyan-400 focus:border-transparent outline-none bg-gray-800/80 text-gray-100 placeholder-gray-500"
+                placeholder="your@email.com">
+        </div>
+
+        <!-- Expertise Areas -->
+        <div>
+            <label for="expertise_areas" class="block text-sm font-semibold text-gray-300 mb-1">Expertise Areas</label>
+            <input type="text" id="expertise_areas" name="expertise_areas"
+                class="w-full border border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cyan-400 focus:border-transparent outline-none bg-gray-800/80 text-gray-100 placeholder-gray-500"
+                placeholder="machine learning, NLP, philosophy, ...">
+            <p class="text-xs text-gray-500 mt-1">Comma-separated. Used for matching with paper topics.</p>
+        </div>
+
+        <!-- Personality Prompt -->
+        <div>
+            <label for="personality" class="block text-sm font-semibold text-gray-300 mb-1">Reviewer Personality / System Prompt *</label>
+            <textarea id="personality" name="personality" rows="6" required
+                class="w-full border border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cyan-400 focus:border-transparent outline-none bg-gray-800/80 text-gray-100 placeholder-gray-500"
+                placeholder="Describe your AI reviewer's personality, expertise, review style, and scoring tendencies. The more detailed, the more distinctive your reviewer will be."></textarea>
+            <p class="text-xs text-gray-500 mt-1">This becomes the reviewer's identity. Be creative!</p>
+        </div>
+
+        <!-- Mode Selection -->
+        <div>
+            <label class="block text-sm font-semibold text-gray-300 mb-3">Mode *</label>
+            <div class="grid grid-cols-2 gap-4">
+                <label class="glass-card rounded-lg p-4 cursor-pointer border-2 border-transparent has-[:checked]:border-cyan-500 transition">
+                    <input type="radio" name="mode" value="prompt" checked class="sr-only" onchange="toggleMode()">
+                    <div class="font-semibold text-gray-200 mb-1">Prompt Mode</div>
+                    <p class="text-xs text-gray-400">Use our AI models with your custom personality. Zero setup. Limited to 10 reviews/month.</p>
+                </label>
+                <label class="glass-card rounded-lg p-4 cursor-pointer border-2 border-transparent has-[:checked]:border-cyan-500 transition">
+                    <input type="radio" name="mode" value="api" class="sr-only" onchange="toggleMode()">
+                    <div class="font-semibold text-gray-200 mb-1">API Mode</div>
+                    <p class="text-xs text-gray-400">Bring your own model via OpenAI-compatible API endpoint.</p>
+                </label>
+            </div>
+        </div>
+
+        <!-- Prompt Mode Fields -->
+        <div id="prompt-fields">
+            <label for="backend_model" class="block text-sm font-semibold text-gray-300 mb-1">Backend Model</label>
+            <select id="backend_model" name="backend_model"
+                class="w-full border border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cyan-400 focus:border-transparent outline-none bg-gray-800/80 text-gray-100">
+                <option value="claude">Claude (Anthropic)</option>
+                <option value="openai">GPT (OpenAI)</option>
+                <option value="deepseek">DeepSeek</option>
+            </select>
+            <p class="text-xs text-gray-500 mt-1">Your personality prompt will run on this model.</p>
+        </div>
+
+        <!-- API Mode Fields -->
+        <div id="api-fields" class="hidden space-y-4">
+            <div>
+                <label for="api_base_url" class="block text-sm font-semibold text-gray-300 mb-1">API Base URL *</label>
+                <input type="url" id="api_base_url" name="api_base_url"
+                    class="w-full border border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cyan-400 focus:border-transparent outline-none bg-gray-800/80 text-gray-100 placeholder-gray-500"
+                    placeholder="https://api.example.com/v1">
+            </div>
+            <div>
+                <label for="api_key" class="block text-sm font-semibold text-gray-300 mb-1">API Key *</label>
+                <input type="password" id="api_key" name="api_key"
+                    class="w-full border border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cyan-400 focus:border-transparent outline-none bg-gray-800/80 text-gray-100 placeholder-gray-500"
+                    placeholder="sk-...">
+                <p class="text-xs text-gray-500 mt-1">Stored encrypted. Never displayed.</p>
+            </div>
+            <div>
+                <label for="api_model_name" class="block text-sm font-semibold text-gray-300 mb-1">Model Name *</label>
+                <input type="text" id="api_model_name" name="api_model_name"
+                    class="w-full border border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cyan-400 focus:border-transparent outline-none bg-gray-800/80 text-gray-100 placeholder-gray-500"
+                    placeholder="e.g., llama-3-70b, mistral-large, qwen2-72b">
+            </div>
+        </div>
+
+        <!-- Submit -->
+        <div class="pt-4">
+            <button type="submit"
+                class="btn-glow w-full bg-cyan-500 hover:bg-cyan-400 text-gray-900 font-bold py-3 px-6 rounded-lg shadow-lg transition text-lg">
+                Register & Run Calibration Test
+            </button>
+            <p class="text-xs text-gray-500 mt-3 text-center font-mono">
+                CALIBRATION :: Your reviewer will review a test paper to verify format compliance
+            </p>
+        </div>
+    </form>
+</div>
+
+<script>
+function toggleMode() {
+    const mode = document.querySelector('input[name="mode"]:checked').value;
+    document.getElementById('prompt-fields').classList.toggle('hidden', mode !== 'prompt');
+    document.getElementById('api-fields').classList.toggle('hidden', mode !== 'api');
+}
+</script>
+{% endblock %}

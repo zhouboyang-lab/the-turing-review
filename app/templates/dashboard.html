@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — The Turing Review{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl font-bold text-gray-100 mb-2">Dashboard</h1>
+<p class="text-gray-400 mb-8">Statistics and insights from The Turing Review.</p>
+
+<!-- Overview Cards -->
+<div class="grid md:grid-cols-4 gap-4 mb-8">
+    <div class="glass-card rounded-xl p-6 text-center">
+        <div class="text-3xl font-bold text-gray-100">{{ stats.total }}</div>
+        <div class="text-sm text-gray-500">Total Submissions</div>
+    </div>
+    <div class="glass-card rounded-xl p-6 text-center">
+        <div class="text-3xl font-bold text-green-400">{{ stats.accepted }}</div>
+        <div class="text-sm text-gray-500">Accepted</div>
+    </div>
+    <div class="glass-card rounded-xl p-6 text-center">
+        <div class="text-3xl font-bold text-yellow-400">{{ stats.revision }}</div>
+        <div class="text-sm text-gray-500">Revision Needed</div>
+    </div>
+    <div class="glass-card rounded-xl p-6 text-center">
+        <div class="text-3xl font-bold text-red-400">{{ stats.rejected }}</div>
+        <div class="text-sm text-gray-500">Rejected</div>
+    </div>
+</div>
+
+<!-- Acceptance Rate -->
+<div class="grid md:grid-cols-2 gap-6 mb-8">
+    <div class="glass-card rounded-xl p-6">
+        <h2 class="text-lg font-bold text-gray-100 mb-4">Acceptance Rate</h2>
+        {% if stats.decided > 0 %}
+        <div class="flex items-center justify-center">
+            <div class="text-5xl font-bold text-gray-100">{{ "%.0f"|format(stats.acceptance_rate) }}%</div>
+        </div>
+        <div class="mt-4 bg-gray-800 rounded-full h-4 overflow-hidden">
+            <div class="bg-green-500 h-full rounded-full" style="width: {{ stats.acceptance_rate }}%"></div>
+        </div>
+        <div class="flex justify-between text-xs text-gray-500 mt-2">
+            <span>{{ stats.accepted }} accepted</span>
+            <span>{{ stats.decided }} decided</span>
+        </div>
+        {% else %}
+        <p class="text-gray-500 text-center py-8">No decisions yet.</p>
+        {% endif %}
+    </div>
+
+    <div class="glass-card rounded-xl p-6">
+        <h2 class="text-lg font-bold text-gray-100 mb-4">Review Pipeline</h2>
+        <div class="space-y-3">
+            <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-400">Awaiting Review</span>
+                <span class="font-semibold text-gray-200">{{ stats.submitted }}</span>
+            </div>
+            <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-400">Under Review</span>
+                <span class="font-semibold text-blue-400">{{ stats.under_review }}</span>
+            </div>
+            <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-400">Total Reviews Generated</span>
+                <span class="font-semibold text-gray-200">{{ stats.total_reviews }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reviewer Score Comparison -->
+{% if reviewer_stats %}
+<div class="glass-card rounded-xl p-6">
+    <h2 class="text-lg font-bold text-gray-100 mb-4">Reviewer Score Comparison (Average)</h2>
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="border-b border-gray-700">
+                    <th class="text-left py-3 px-4 text-gray-500">Reviewer</th>
+                    <th class="text-center py-3 px-4 text-gray-500">Reviews</th>
+                    <th class="text-center py-3 px-4 text-gray-500">Avg Novelty</th>
+                    <th class="text-center py-3 px-4 text-gray-500">Avg Soundness</th>
+                    <th class="text-center py-3 px-4 text-gray-500">Avg Writing</th>
+                    <th class="text-center py-3 px-4 text-gray-500">Avg Overall</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for rs in reviewer_stats %}
+                <tr class="border-b border-gray-700/50 hover:bg-gray-800/50">
+                    <td class="py-3 px-4 font-medium text-gray-200">{{ rs.name }}</td>
+                    <td class="py-3 px-4 text-center text-gray-400">{{ rs.count }}</td>
+                    <td class="py-3 px-4 text-center text-gray-400">{{ "%.1f"|format(rs.avg_novelty) }}</td>
+                    <td class="py-3 px-4 text-center text-gray-400">{{ "%.1f"|format(rs.avg_soundness) }}</td>
+                    <td class="py-3 px-4 text-center text-gray-400">{{ "%.1f"|format(rs.avg_writing) }}</td>
+                    <td class="py-3 px-4 text-center font-semibold text-amber-400">{{ "%.1f"|format(rs.avg_overall) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
