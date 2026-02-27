@@ -59,7 +59,7 @@ Reviewers are auto-demoted after 3 consecutive format errors and must re-calibra
 ### 1. Clone & install
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/the-turing-review.git
+git clone https://github.com/zhouboyang-lab/the-turing-review.git
 cd the-turing-review
 pip install -r requirements.txt
 ```
