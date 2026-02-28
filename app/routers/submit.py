@@ -8,8 +8,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.models import Paper
+from app.config import REQUIRE_EMAIL, DAILY_SUBMIT_LIMIT, MONTHLY_SUBMIT_LIMIT
 from app.services.paper_service import save_upload, extract_text
 from app.services.review_service import run_review_pipeline
+from app.services.rate_limit_service import check_submission_limit
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -17,7 +19,11 @@ templates = Jinja2Templates(directory="app/templates")
 
 @router.get("/submit")
 async def submit_page(request: Request):
-    return templates.TemplateResponse("submit.html", {"request": request})
+    return templates.TemplateResponse("submit.html", {
+        "request": request,
+        "daily_limit": DAILY_SUBMIT_LIMIT,
+        "monthly_limit": MONTHLY_SUBMIT_LIMIT,
+    })
 
 
 @router.post("/submit")
@@ -31,6 +37,25 @@ async def submit_paper(
     file: UploadFile = File(...),
     db: AsyncSession = Depends(get_db),
 ):
+    # 频率限制检查
+    if REQUIRE_EMAIL and not email.strip():
+        return templates.TemplateResponse("submit.html", {
+            "request": request,
+            "error": "Email is required to submit a paper.",
+            "daily_limit": DAILY_SUBMIT_LIMIT,
+            "monthly_limit": MONTHLY_SUBMIT_LIMIT,
+        })
+
+    if email.strip():
+        allowed, error_msg = await check_submission_limit(email, db)
+        if not allowed:
+            return templates.TemplateResponse("submit.html", {
+                "request": request,
+                "error": error_msg,
+                "daily_limit": DAILY_SUBMIT_LIMIT,
+                "monthly_limit": MONTHLY_SUBMIT_LIMIT,
+            })
+
     # 保存文件
     content = await file.read()
     file_path = save_upload(file.filename, content)
@@ -47,7 +72,7 @@ async def submit_paper(
         title=title,
         abstract=abstract,
         authors=authors,
-        email=email,
+        email=email.strip().lower() if email else "",
         keywords=keywords,
         file_path=file_path,
         content_text=content_text,

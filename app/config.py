@@ -40,3 +40,8 @@ MAX_PROMPT_MODE_PER_PAPER = int(os.getenv("MAX_PROMPT_MODE_PER_PAPER", "1"))
 GUEST_API_TIMEOUT = int(os.getenv("GUEST_API_TIMEOUT", "120"))
 GUEST_API_KEY_SECRET = os.getenv("GUEST_API_KEY_SECRET", "change-me-in-production")
 PROMPT_MODE_MONTHLY_QUOTA = int(os.getenv("PROMPT_MODE_MONTHLY_QUOTA", "10"))
+
+# 投稿频率限制
+DAILY_SUBMIT_LIMIT = int(os.getenv("DAILY_SUBMIT_LIMIT", "2"))
+MONTHLY_SUBMIT_LIMIT = int(os.getenv("MONTHLY_SUBMIT_LIMIT", "5"))
+REQUIRE_EMAIL = os.getenv("REQUIRE_EMAIL", "true").lower() == "true"

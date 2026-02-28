@@ -25,6 +25,22 @@
     </div>
 </div>
 
+<!-- Usage Stats -->
+<div class="grid md:grid-cols-3 gap-4 mb-8">
+    <div class="glass-card rounded-xl p-6 text-center">
+        <div class="text-3xl font-bold text-cyan-400">{{ stats.today_submissions }}</div>
+        <div class="text-sm text-gray-500">Today's Submissions</div>
+    </div>
+    <div class="glass-card rounded-xl p-6 text-center">
+        <div class="text-3xl font-bold text-cyan-400">{{ stats.month_submissions }}</div>
+        <div class="text-sm text-gray-500">This Month</div>
+    </div>
+    <div class="glass-card rounded-xl p-6 text-center">
+        <div class="text-3xl font-bold text-purple-400">{{ stats.active_users }}</div>
+        <div class="text-sm text-gray-500">Active Users (Month)</div>
+    </div>
+</div>
+
 <!-- Acceptance Rate -->
 <div class="grid md:grid-cols-2 gap-6 mb-8">
     <div class="glass-card rounded-xl p-6">

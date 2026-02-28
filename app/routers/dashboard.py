@@ -1,8 +1,10 @@
 """统计面板路由。"""
 
+from datetime import datetime
+
 from fastapi import APIRouter, Request, Depends
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import select, func
+from sqlalchemy import select, func, distinct
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
@@ -10,6 +12,8 @@ from app.models import Paper, Review
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
+
+ESTIMATED_COST_PER_PAPER = 0.21  # USD
 
 
 @router.get("/dashboard")
@@ -30,6 +34,26 @@ async def dashboard(request: Request, db: AsyncSession = Depends(get_db)):
     review_count_result = await db.execute(select(func.count(Review.id)))
     total_reviews = review_count_result.scalar() or 0
 
+    # 成本统计
+    now = datetime.utcnow()
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+    today_submissions = await db.scalar(
+        select(func.count(Paper.id)).where(Paper.submitted_at >= today_start)
+    ) or 0
+
+    month_submissions = await db.scalar(
+        select(func.count(Paper.id)).where(Paper.submitted_at >= month_start)
+    ) or 0
+
+    active_users = await db.scalar(
+        select(func.count(distinct(Paper.email))).where(
+            Paper.submitted_at >= month_start,
+            Paper.email != "",
+        )
+    ) or 0
+
     stats = {
         "total": total,
         "accepted": accepted,
@@ -40,6 +64,11 @@ async def dashboard(request: Request, db: AsyncSession = Depends(get_db)):
         "decided": decided,
         "acceptance_rate": (accepted / decided * 100) if decided > 0 else 0,
         "total_reviews": total_reviews,
+        "today_submissions": today_submissions,
+        "month_submissions": month_submissions,
+        "active_users": active_users,
+        "est_cost_total": round(total * ESTIMATED_COST_PER_PAPER, 2),
+        "est_cost_month": round(month_submissions * ESTIMATED_COST_PER_PAPER, 2),
     }
 
     # 各审稿人平均评分

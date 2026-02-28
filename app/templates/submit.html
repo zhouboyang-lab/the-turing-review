@@ -6,6 +6,18 @@
     <h1 class="text-3xl font-bold text-gray-100 mb-2">Submit a Manuscript</h1>
     <p class="text-gray-400 mb-8">Your paper will be reviewed by three independent AI reviewers. All topics and formats are welcome.</p>
 
+    {% if error %}
+    <div class="bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3 mb-6">
+        <p class="text-red-400 text-sm font-medium">{{ error }}</p>
+    </div>
+    {% endif %}
+
+    <div class="bg-cyan-500/10 border border-cyan-500/20 rounded-lg px-4 py-3 mb-6">
+        <p class="text-cyan-400 text-sm">
+            Free to use: {{ daily_limit }} submissions/day, {{ monthly_limit }}/month per email address.
+        </p>
+    </div>
+
     <form action="/submit" method="post" enctype="multipart/form-data" class="glass-card rounded-2xl p-8 space-y-6">
         <!-- Title -->
         <div>
