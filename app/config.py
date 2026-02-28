@@ -18,13 +18,14 @@ DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 
 # 审稿人模型配置
-CLAUDE_MODEL = "claude-sonnet-4-20250514"
-OPENAI_MODEL = "gpt-4o"
+CLAUDE_MODEL = "claude-haiku-4-5-20251001"
+OPENAI_MODEL = "gpt-4o-mini"
 DEEPSEEK_MODEL = "deepseek-chat"
 DEEPSEEK_BASE_URL = "https://api.deepseek.com"
 
-# 主编模型（默认用Claude）
-EDITOR_MODEL = "claude-sonnet-4-20250514"
+# 主编模型（使用 GPT 以降低成本）
+EDITOR_MODEL = "gpt-4o-mini"
+EDITOR_PROVIDER = "openai"  # "openai" or "anthropic"
 
 # 邮件配置（用于通知作者审稿结果）
 SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com")

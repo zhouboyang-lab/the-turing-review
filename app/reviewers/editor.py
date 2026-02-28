@@ -2,7 +2,8 @@
 
 import json
 import anthropic
-from app.config import ANTHROPIC_API_KEY, EDITOR_MODEL
+import openai
+from app.config import ANTHROPIC_API_KEY, OPENAI_API_KEY, EDITOR_MODEL, EDITOR_PROVIDER
 from app.reviewers.base import ReviewResult
 
 
@@ -65,7 +66,11 @@ class AIEditor:
     """AI主编：综合审稿意见并做出最终决定。"""
 
     def __init__(self):
-        self.client = anthropic.AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
+        self.provider = EDITOR_PROVIDER
+        if self.provider == "openai":
+            self.openai_client = openai.AsyncOpenAI(api_key=OPENAI_API_KEY)
+        else:
+            self.anthropic_client = anthropic.AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
 
     async def make_decision(
         self,
@@ -105,14 +110,24 @@ Suggestions: {result.suggestions}
 
 Please provide your editorial decision and formal decision letter in JSON format."""
 
-        response = await self.client.messages.create(
-            model=EDITOR_MODEL,
-            max_tokens=4096,
-            system=EDITOR_SYSTEM_PROMPT,
-            messages=[{"role": "user", "content": user_prompt}],
-        )
-
-        raw = response.content[0].text
+        if self.provider == "openai":
+            response = await self.openai_client.chat.completions.create(
+                model=EDITOR_MODEL,
+                max_tokens=4096,
+                messages=[
+                    {"role": "system", "content": EDITOR_SYSTEM_PROMPT},
+                    {"role": "user", "content": user_prompt},
+                ],
+            )
+            raw = response.choices[0].message.content
+        else:
+            response = await self.anthropic_client.messages.create(
+                model=EDITOR_MODEL,
+                max_tokens=4096,
+                system=EDITOR_SYSTEM_PROMPT,
+                messages=[{"role": "user", "content": user_prompt}],
+            )
+            raw = response.content[0].text
         try:
             text = raw.strip()
             if text.startswith("```"):
