@@ -1,6 +1,7 @@
-"""论文展示路由 — 论文列表和详情页。"""
+"""论文展示路由 — 论文列表、详情页和已发表论文。"""
 
 import json
+from collections import OrderedDict
 from fastapi import APIRouter, Request, Depends
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -63,4 +64,45 @@ async def paper_list(request: Request, status: str = None, db: AsyncSession = De
         "papers": papers,
         "status_filter": status,
         "counts": counts,
+    })
+
+
+@router.get("/published")
+async def published_papers(request: Request, db: AsyncSession = Depends(get_db)):
+    """已发表论文页面 — 按期号（月份）分组展示。"""
+    # 查询所有 accepted 论文
+    result = await db.execute(
+        select(Paper).where(Paper.status == "accepted").order_by(Paper.decided_at.desc())
+    )
+    papers = result.scalars().all()
+
+    # 总投稿数（用于计算接受率）
+    total_decided = await db.scalar(
+        select(func.count(Paper.id)).where(
+            Paper.status.in_(["accepted", "rejected", "revision"])
+        )
+    ) or 0
+
+    # 按月份分组为期号
+    issues = OrderedDict()
+    for paper in papers:
+        dt = paper.decided_at or paper.submitted_at
+        key = dt.strftime("%Y-%m")
+        if key not in issues:
+            issues[key] = {
+                "label": dt.strftime("%B %Y"),  # e.g. "March 2026"
+                "papers": [],
+            }
+        issues[key]["papers"].append(paper)
+
+    # 计算 Volume 编号（按月份从早到晚）
+    sorted_keys = sorted(issues.keys())
+    for i, key in enumerate(sorted_keys, 1):
+        issues[key]["volume"] = i
+
+    return templates.TemplateResponse("published.html", {
+        "request": request,
+        "issues": issues,
+        "total_published": len(papers),
+        "acceptance_rate": round(len(papers) / total_decided * 100) if total_decided > 0 else 0,
     })

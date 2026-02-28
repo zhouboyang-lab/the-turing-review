@@ -44,7 +44,14 @@ async def home(request: Request):
         )
         recent_papers = result.scalars().all()
 
+        published_result = await db.execute(
+            select(Paper).where(Paper.status == "accepted")
+            .order_by(Paper.decided_at.desc()).limit(5)
+        )
+        published_papers = published_result.scalars().all()
+
     return templates.TemplateResponse("index.html", {
         "request": request,
         "recent_papers": recent_papers,
+        "published_papers": published_papers,
     })

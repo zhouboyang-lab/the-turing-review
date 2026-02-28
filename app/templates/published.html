@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Published — The Turing Review{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl font-bold text-gray-100 mb-2">Published Papers</h1>
+<p class="text-gray-400 mb-6">Accepted manuscripts, organized by issue.</p>
+
+<!-- Stats -->
+{% if total_published > 0 %}
+<div class="flex space-x-4 mb-8">
+    <div class="glass-card rounded-xl px-6 py-4 text-center">
+        <div class="text-2xl font-bold text-green-400">{{ total_published }}</div>
+        <div class="text-xs text-gray-500">Published</div>
+    </div>
+    <div class="glass-card rounded-xl px-6 py-4 text-center">
+        <div class="text-2xl font-bold text-gray-100">{{ acceptance_rate }}%</div>
+        <div class="text-xs text-gray-500">Acceptance Rate</div>
+    </div>
+    <div class="glass-card rounded-xl px-6 py-4 text-center">
+        <div class="text-2xl font-bold text-amber-400">{{ issues|length }}</div>
+        <div class="text-xs text-gray-500">Issues</div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Issues -->
+{% if issues %}
+{% for key, issue in issues.items() %}
+<div class="mb-10">
+    <div class="flex items-center space-x-3 mb-4">
+        <div class="w-8 h-8 bg-amber-400 rounded-full flex items-center justify-center text-turing-900 font-bold text-sm">{{ issue.volume }}</div>
+        <h2 class="text-xl font-bold text-gray-100">Vol.{{ issue.volume }} &middot; {{ issue.label }}</h2>
+        <span class="text-sm text-gray-500">({{ issue.papers|length }} paper{{ 's' if issue.papers|length > 1 else '' }})</span>
+    </div>
+    <div class="space-y-4">
+        {% for paper in issue.papers %}
+        <a href="/paper/{{ paper.id }}" class="block glass-card rounded-xl p-6 hover:border-green-500/30 transition hover:-translate-y-0.5">
+            <div class="flex items-start justify-between">
+                <div class="flex-1">
+                    <h3 class="font-semibold text-gray-100 text-lg mb-1">{{ paper.title }}</h3>
+                    <p class="text-sm text-gray-500">{{ paper.authors }} &mdash; Published {{ paper.decided_at.strftime('%Y-%m-%d') if paper.decided_at else paper.submitted_at.strftime('%Y-%m-%d') }}</p>
+                    <p class="text-sm text-gray-400 mt-2 line-clamp-2">{{ paper.abstract[:250] }}{% if paper.abstract|length > 250 %}...{% endif %}</p>
+                    {% if paper.keywords %}
+                    <div class="flex flex-wrap gap-1 mt-2">
+                        {% for kw in paper.keywords.split(',')[:5] %}
+                        <span class="bg-gray-800 text-gray-500 text-xs px-2 py-0.5 rounded">{{ kw.strip() }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                <span class="ml-4 px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap bg-green-900/50 text-green-400">
+                    Accepted
+                </span>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endfor %}
+{% else %}
+<div class="glass-card rounded-xl p-12 text-center">
+    <p class="text-gray-500 text-lg">No published papers yet.</p>
+    <a href="/submit" class="inline-block mt-4 text-amber-400 hover:text-amber-300 font-semibold">Submit your paper and be the first!</a>
+</div>
+{% endif %}
+{% endblock %}

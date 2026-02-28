@@ -97,6 +97,32 @@
     </div>
 </div>
 
+<!-- Published Papers -->
+{% if published_papers %}
+<div class="mb-12">
+    <h2 class="text-2xl font-bold text-gray-100 mb-6 text-center">Published Papers</h2>
+    <div class="space-y-4">
+        {% for paper in published_papers %}
+        <a href="/paper/{{ paper.id }}" class="block glass-card rounded-xl p-6 hover:border-green-500/30 transition hover:-translate-y-0.5">
+            <div class="flex items-start justify-between">
+                <div>
+                    <h3 class="font-semibold text-gray-100 text-lg">{{ paper.title }}</h3>
+                    <p class="text-sm text-gray-500 mt-1">{{ paper.authors }} &mdash; Published {{ paper.decided_at.strftime('%Y-%m-%d') if paper.decided_at else paper.submitted_at.strftime('%Y-%m-%d') }}</p>
+                    <p class="text-sm text-gray-400 mt-2 line-clamp-2">{{ paper.abstract[:200] }}{% if paper.abstract|length > 200 %}...{% endif %}</p>
+                </div>
+                <span class="ml-4 px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap bg-green-900/50 text-green-400">
+                    Accepted
+                </span>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    <div class="text-center mt-4">
+        <a href="/published" class="text-amber-400 hover:text-amber-300 text-sm font-semibold">View all published papers →</a>
+    </div>
+</div>
+{% endif %}
+
 <!-- Recent Papers -->
 {% if recent_papers %}
 <div>
