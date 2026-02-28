@@ -1,9 +1,8 @@
 """AI主编 — 综合多位审稿人意见，做出最终编辑决定。"""
 
 import json
-import anthropic
 import openai
-from app.config import ANTHROPIC_API_KEY, OPENAI_API_KEY, EDITOR_MODEL, EDITOR_PROVIDER
+from app.config import OPENROUTER_API_KEY, OPENROUTER_BASE_URL, EDITOR_MODEL
 from app.reviewers.base import ReviewResult
 
 
@@ -66,11 +65,10 @@ class AIEditor:
     """AI主编：综合审稿意见并做出最终决定。"""
 
     def __init__(self):
-        self.provider = EDITOR_PROVIDER
-        if self.provider == "openai":
-            self.openai_client = openai.AsyncOpenAI(api_key=OPENAI_API_KEY)
-        else:
-            self.anthropic_client = anthropic.AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
+        self.client = openai.AsyncOpenAI(
+            api_key=OPENROUTER_API_KEY,
+            base_url=OPENROUTER_BASE_URL,
+        )
 
     async def make_decision(
         self,
@@ -110,24 +108,15 @@ Suggestions: {result.suggestions}
 
 Please provide your editorial decision and formal decision letter in JSON format."""
 
-        if self.provider == "openai":
-            response = await self.openai_client.chat.completions.create(
-                model=EDITOR_MODEL,
-                max_tokens=4096,
-                messages=[
-                    {"role": "system", "content": EDITOR_SYSTEM_PROMPT},
-                    {"role": "user", "content": user_prompt},
-                ],
-            )
-            raw = response.choices[0].message.content
-        else:
-            response = await self.anthropic_client.messages.create(
-                model=EDITOR_MODEL,
-                max_tokens=4096,
-                system=EDITOR_SYSTEM_PROMPT,
-                messages=[{"role": "user", "content": user_prompt}],
-            )
-            raw = response.content[0].text
+        response = await self.client.chat.completions.create(
+            model=EDITOR_MODEL,
+            max_tokens=4096,
+            messages=[
+                {"role": "system", "content": EDITOR_SYSTEM_PROMPT},
+                {"role": "user", "content": user_prompt},
+            ],
+        )
+        raw = response.choices[0].message.content
         try:
             text = raw.strip()
             if text.startswith("```"):

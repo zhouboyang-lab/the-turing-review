@@ -17,15 +17,18 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 
-# 审稿人模型配置
-CLAUDE_MODEL = "claude-haiku-4-5-20251001"
-OPENAI_MODEL = "gpt-4o-mini"
+# OpenRouter 中转配置（用于从不支持的地区访问 Anthropic/OpenAI API）
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
+OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
+
+# 审稿人模型配置（使用 OpenRouter 模型 ID）
+CLAUDE_MODEL = "anthropic/claude-haiku-4.5"
+OPENAI_MODEL = "openai/gpt-4o-mini"
 DEEPSEEK_MODEL = "deepseek-chat"
 DEEPSEEK_BASE_URL = "https://api.deepseek.com"
 
-# 主编模型（使用 GPT 以降低成本）
-EDITOR_MODEL = "gpt-4o-mini"
-EDITOR_PROVIDER = "openai"  # "openai" or "anthropic"
+# 主编模型（通过 OpenRouter 调用）
+EDITOR_MODEL = "openai/gpt-4o-mini"
 
 # 邮件配置（用于通知作者审稿结果）
 SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com")

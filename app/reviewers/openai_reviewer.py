@@ -1,7 +1,7 @@
 """GPT 审稿人 — "The Innovator"：注重实用价值和创新性。"""
 
 from openai import AsyncOpenAI
-from app.config import OPENAI_API_KEY, OPENAI_MODEL
+from app.config import OPENROUTER_API_KEY, OPENROUTER_BASE_URL, OPENAI_MODEL
 from app.reviewers.base import BaseReviewer
 
 
@@ -29,7 +29,10 @@ class OpenAIReviewer(BaseReviewer):
 - However, you are NOT a pushover. Plagiarism, fabricated results, or complete lack of effort will get a firm rejection. You save your harshest words for wasted potential — smart authors doing lazy work."""
 
     def __init__(self):
-        self.client = AsyncOpenAI(api_key=OPENAI_API_KEY)
+        self.client = AsyncOpenAI(
+            api_key=OPENROUTER_API_KEY,
+            base_url=OPENROUTER_BASE_URL,
+        )
 
     async def _call_api(self, system_prompt: str, user_prompt: str) -> str:
         response = await self.client.chat.completions.create(

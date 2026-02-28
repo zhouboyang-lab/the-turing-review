@@ -1,7 +1,7 @@
 """Claude 审稿人 — "The Logician"：注重逻辑严谨性和伦理考量。"""
 
-import anthropic
-from app.config import ANTHROPIC_API_KEY, CLAUDE_MODEL
+from openai import AsyncOpenAI
+from app.config import OPENROUTER_API_KEY, OPENROUTER_BASE_URL, CLAUDE_MODEL
 from app.reviewers.base import BaseReviewer
 
 
@@ -29,13 +29,18 @@ class ClaudeReviewer(BaseReviewer):
 - You weight soundness_score most heavily in your decision. A logically flawed paper cannot be "accepted" in your view, regardless of novelty."""
 
     def __init__(self):
-        self.client = anthropic.AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
+        self.client = AsyncOpenAI(
+            api_key=OPENROUTER_API_KEY,
+            base_url=OPENROUTER_BASE_URL,
+        )
 
     async def _call_api(self, system_prompt: str, user_prompt: str) -> str:
-        response = await self.client.messages.create(
+        response = await self.client.chat.completions.create(
             model=CLAUDE_MODEL,
             max_tokens=4096,
-            system=system_prompt,
-            messages=[{"role": "user", "content": user_prompt}],
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt},
+            ],
         )
-        return response.content[0].text
+        return response.choices[0].message.content
