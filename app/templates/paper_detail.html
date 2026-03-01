@@ -57,20 +57,20 @@
         {% for review in paper.reviews %}
         <div class="reviewer-card glass-card rounded-xl overflow-hidden
             {% if review.is_guest %}reviewer-guest border-t-4
-            {% elif review.model_provider == 'claude' %}reviewer-claude border-t-4
-            {% elif review.model_provider == 'openai' %}reviewer-gpt border-t-4
-            {% elif review.model_provider == 'deepseek' %}reviewer-deepseek border-t-4
+            {% elif review.model_provider == 'logician' %}reviewer-logician border-t-4
+            {% elif review.model_provider == 'innovator' %}reviewer-innovator border-t-4
+            {% elif review.model_provider == 'technician' %}reviewer-technician border-t-4
             {% else %}border-t-4 border-gray-600{% endif %}">
             <!-- Reviewer Header -->
             <div class="px-6 py-4 border-b border-gray-700 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <div class="reviewer-icon w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-xs
                         {% if review.is_guest %}bg-gradient-to-br from-cyan-500 to-blue-600
-                        {% elif review.model_provider == 'claude' %}
-                        {% elif review.model_provider == 'openai' %}
-                        {% elif review.model_provider == 'deepseek' %}
+                        {% elif review.model_provider == 'logician' %}
+                        {% elif review.model_provider == 'innovator' %}
+                        {% elif review.model_provider == 'technician' %}
                         {% endif %}">
-                        {% if review.is_guest %}G{% else %}{{ review.model_provider[0] | upper }}{% endif %}
+                        {% if review.is_guest %}G{% else %}{{ review.reviewer_name[4] | upper }}{% endif %}
                     </div>
                     <div>
                         <h3 class="font-bold text-gray-100">{{ review.reviewer_name }}</h3>

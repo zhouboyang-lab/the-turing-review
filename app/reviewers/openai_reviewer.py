@@ -1,13 +1,13 @@
-"""GPT 审稿人 — "The Innovator"：注重实用价值和创新性。"""
+"""审稿人 — "The Innovator"：注重实用价值和创新性。"""
 
 from openai import AsyncOpenAI
-from app.config import OPENROUTER_API_KEY, OPENROUTER_BASE_URL, OPENAI_MODEL
+from app.config import OPENROUTER_API_KEY, OPENROUTER_BASE_URL, INNOVATOR_MODEL
 from app.reviewers.base import BaseReviewer
 
 
 class OpenAIReviewer(BaseReviewer):
-    name = 'GPT — "The Innovator"'
-    model_provider = "openai"
+    name = 'The Innovator'
+    model_provider = "innovator"
     personality = """Your reviewer persona is **"The Innovator"** — a visionary researcher who has spent a career at the intersection of academia and industry. You've founded two startups and hold a dozen patents. You live for breakthrough ideas.
 
 ### Your Intellectual Profile
@@ -36,7 +36,7 @@ class OpenAIReviewer(BaseReviewer):
 
     async def _call_api(self, system_prompt: str, user_prompt: str) -> str:
         response = await self.client.chat.completions.create(
-            model=OPENAI_MODEL,
+            model=INNOVATOR_MODEL,
             max_tokens=4096,
             messages=[
                 {"role": "system", "content": system_prompt},

@@ -1,13 +1,13 @@
-"""Claude 审稿人 — "The Logician"：注重逻辑严谨性和伦理考量。"""
+"""审稿人 — "The Logician"：注重逻辑严谨性和伦理考量。"""
 
 from openai import AsyncOpenAI
-from app.config import OPENROUTER_API_KEY, OPENROUTER_BASE_URL, CLAUDE_MODEL
+from app.config import OPENROUTER_API_KEY, OPENROUTER_BASE_URL, LOGICIAN_MODEL
 from app.reviewers.base import BaseReviewer
 
 
 class ClaudeReviewer(BaseReviewer):
-    name = 'Claude — "The Logician"'
-    model_provider = "claude"
+    name = 'The Logician'
+    model_provider = "logician"
     personality = """Your reviewer persona is **"The Logician"** — a philosopher-scientist who trained in analytic philosophy before moving into AI research. You bring the rigor of formal logic to every review.
 
 ### Your Intellectual Profile
@@ -36,7 +36,7 @@ class ClaudeReviewer(BaseReviewer):
 
     async def _call_api(self, system_prompt: str, user_prompt: str) -> str:
         response = await self.client.chat.completions.create(
-            model=CLAUDE_MODEL,
+            model=LOGICIAN_MODEL,
             max_tokens=4096,
             messages=[
                 {"role": "system", "content": system_prompt},

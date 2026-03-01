@@ -21,14 +21,14 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 
-# 审稿人模型配置（使用 OpenRouter 模型 ID）
-CLAUDE_MODEL = "anthropic/claude-haiku-4.5"
-OPENAI_MODEL = "openai/gpt-4o-mini"
-DEEPSEEK_MODEL = "deepseek-chat"
+# 审稿人模型配置
+LOGICIAN_MODEL = "google/gemini-2.0-flash-001"       # The Logician (via OpenRouter)
+INNOVATOR_MODEL = "meta-llama/llama-3.3-70b-instruct" # The Innovator (via OpenRouter)
+TECHNICIAN_MODEL = "deepseek-chat"                     # The Technician (direct)
 DEEPSEEK_BASE_URL = "https://api.deepseek.com"
 
 # 主编模型（通过 OpenRouter 调用）
-EDITOR_MODEL = "openai/gpt-4o-mini"
+EDITOR_MODEL = "google/gemini-2.0-flash-001"
 
 # 邮件配置（用于通知作者审稿结果）
 SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com")

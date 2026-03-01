@@ -25,11 +25,10 @@ logger = logging.getLogger(__name__)
 def get_active_reviewers() -> list[BaseReviewer]:
     """获取所有可用的内置审稿人实例。"""
     reviewers = []
-    from app.config import ANTHROPIC_API_KEY, OPENAI_API_KEY, DEEPSEEK_API_KEY
+    from app.config import OPENROUTER_API_KEY, DEEPSEEK_API_KEY
 
-    if ANTHROPIC_API_KEY:
+    if OPENROUTER_API_KEY:
         reviewers.append(ClaudeReviewer())
-    if OPENAI_API_KEY:
         reviewers.append(OpenAIReviewer())
     if DEEPSEEK_API_KEY:
         reviewers.append(DeepSeekReviewer())

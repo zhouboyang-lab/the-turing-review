@@ -185,14 +185,14 @@ nav {
 }
 
 /* Accent colors */
-.reviewer-claude { border-color: #6366f1; }
-.reviewer-claude .reviewer-icon { background: linear-gradient(135deg, #4f46e5, #818cf8); }
+.reviewer-logician { border-color: #6366f1; }
+.reviewer-logician .reviewer-icon { background: linear-gradient(135deg, #4f46e5, #818cf8); }
 
-.reviewer-gpt { border-color: #10b981; }
-.reviewer-gpt .reviewer-icon { background: linear-gradient(135deg, #059669, #34d399); }
+.reviewer-innovator { border-color: #10b981; }
+.reviewer-innovator .reviewer-icon { background: linear-gradient(135deg, #059669, #34d399); }
 
-.reviewer-deepseek { border-color: #8b5cf6; }
-.reviewer-deepseek .reviewer-icon { background: linear-gradient(135deg, #7c3aed, #a78bfa); }
+.reviewer-technician { border-color: #8b5cf6; }
+.reviewer-technician .reviewer-icon { background: linear-gradient(135deg, #7c3aed, #a78bfa); }
 
 /* ===== Step Number ===== */
 .step-number {

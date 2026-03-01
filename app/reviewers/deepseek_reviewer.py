@@ -1,13 +1,13 @@
-"""DeepSeek 审稿人 — "The Technician"：注重技术细节和数学推导。"""
+"""审稿人 — "The Technician"：注重技术细节和数学推导。"""
 
 from openai import AsyncOpenAI
-from app.config import DEEPSEEK_API_KEY, DEEPSEEK_MODEL, DEEPSEEK_BASE_URL
+from app.config import DEEPSEEK_API_KEY, TECHNICIAN_MODEL, DEEPSEEK_BASE_URL
 from app.reviewers.base import BaseReviewer
 
 
 class DeepSeekReviewer(BaseReviewer):
-    name = 'DeepSeek — "The Technician"'
-    model_provider = "deepseek"
+    name = 'The Technician'
+    model_provider = "technician"
     personality = """Your reviewer persona is **"The Technician"** — a battle-hardened systems engineer who spent 15 years building production systems before entering research. You've debugged code at 3am, reviewed thousands of PRs, and you know the difference between theory that works on paper and theory that works in practice.
 
 ### Your Intellectual Profile
@@ -37,7 +37,7 @@ class DeepSeekReviewer(BaseReviewer):
 
     async def _call_api(self, system_prompt: str, user_prompt: str) -> str:
         response = await self.client.chat.completions.create(
-            model=DEEPSEEK_MODEL,
+            model=TECHNICIAN_MODEL,
             max_tokens=4096,
             messages=[
                 {"role": "system", "content": system_prompt},

@@ -2,12 +2,12 @@
 
 import asyncio
 from openai import AsyncOpenAI
-import anthropic
 
 from app.reviewers.base import BaseReviewer
 from app.config import (
-    ANTHROPIC_API_KEY, OPENAI_API_KEY, DEEPSEEK_API_KEY,
-    DEEPSEEK_BASE_URL, CLAUDE_MODEL, OPENAI_MODEL, DEEPSEEK_MODEL,
+    OPENROUTER_API_KEY, OPENROUTER_BASE_URL,
+    DEEPSEEK_API_KEY, DEEPSEEK_BASE_URL,
+    LOGICIAN_MODEL, INNOVATOR_MODEL, TECHNICIAN_MODEL,
     GUEST_API_TIMEOUT,
 )
 
@@ -51,50 +51,29 @@ class GuestReviewerRunner(BaseReviewer):
     async def _call_prompt_mode(self, system_prompt: str, user_prompt: str) -> str:
         """使用我们的 API key，注入用户的 personality。"""
         if self.backend_model == "claude":
-            client = anthropic.AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
-            response = await asyncio.wait_for(
-                client.messages.create(
-                    model=CLAUDE_MODEL,
-                    max_tokens=4096,
-                    system=system_prompt,
-                    messages=[{"role": "user", "content": user_prompt}],
-                ),
-                timeout=GUEST_API_TIMEOUT,
-            )
-            return response.content[0].text
-
+            client = AsyncOpenAI(api_key=OPENROUTER_API_KEY, base_url=OPENROUTER_BASE_URL)
+            model = LOGICIAN_MODEL
         elif self.backend_model == "openai":
-            client = AsyncOpenAI(api_key=OPENAI_API_KEY)
-            response = await asyncio.wait_for(
-                client.chat.completions.create(
-                    model=OPENAI_MODEL,
-                    max_tokens=4096,
-                    messages=[
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": user_prompt},
-                    ],
-                ),
-                timeout=GUEST_API_TIMEOUT,
-            )
-            return response.choices[0].message.content
-
+            client = AsyncOpenAI(api_key=OPENROUTER_API_KEY, base_url=OPENROUTER_BASE_URL)
+            model = INNOVATOR_MODEL
         elif self.backend_model == "deepseek":
             client = AsyncOpenAI(api_key=DEEPSEEK_API_KEY, base_url=DEEPSEEK_BASE_URL)
-            response = await asyncio.wait_for(
-                client.chat.completions.create(
-                    model=DEEPSEEK_MODEL,
-                    max_tokens=4096,
-                    messages=[
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": user_prompt},
-                    ],
-                ),
-                timeout=GUEST_API_TIMEOUT,
-            )
-            return response.choices[0].message.content
-
+            model = TECHNICIAN_MODEL
         else:
             raise ValueError(f"Unknown backend model: {self.backend_model}")
+
+        response = await asyncio.wait_for(
+            client.chat.completions.create(
+                model=model,
+                max_tokens=4096,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt},
+                ],
+            ),
+            timeout=GUEST_API_TIMEOUT,
+        )
+        return response.choices[0].message.content
 
     async def _call_api_mode(self, system_prompt: str, user_prompt: str) -> str:
         """调用用户提供的 OpenAI-compatible 端点。"""

@@ -15,9 +15,9 @@ You receive independent peer reviews from multiple AI reviewers. Your job is to 
 ## Reviewer Types
 
 ### Built-in Reviewers (Senior Staff)
-- **Claude "The Logician"** — focuses on logical rigor and ethical considerations; tends to score conservatively
-- **GPT "The Innovator"** — focuses on novelty and real-world impact; tends to score generously
-- **DeepSeek "The Technician"** — focuses on technical details and reproducibility; scores objectively
+- **"The Logician"** — focuses on logical rigor and ethical considerations; tends to score conservatively
+- **"The Innovator"** — focuses on novelty and real-world impact; tends to score generously
+- **"The Technician"** — focuses on technical details and reproducibility; scores objectively
 
 These are your trusted senior reviewers. Weight their opinions most heavily.
 
