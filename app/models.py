@@ -16,6 +16,7 @@ class Paper(Base):
     file_path = Column(String(500), default="")
     content_text = Column(Text, default="")
     status = Column(String(50), default="submitted")  # submitted/under_review/accepted/revision/rejected
+    publication_number = Column(Integer, nullable=True, unique=True)  # 仅 accepted 时分配，作为 TR-xxxx 发表编号
     submitted_at = Column(DateTime, default=datetime.utcnow)
     decided_at = Column(DateTime, nullable=True)
 

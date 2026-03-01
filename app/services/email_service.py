@@ -17,7 +17,7 @@ DECISION_LABELS = {
 }
 
 
-def send_decision_email(to_email: str, paper_id: int, paper_title: str, final_decision: str):
+def send_decision_email(to_email: str, paper_id: int, paper_title: str, final_decision: str, publication_number: int = None):
     """审稿完成后发送结果通知邮件给作者。"""
     if not to_email or not SMTP_USER:
         logger.info(f"Skipping email: to={to_email}, smtp_user={bool(SMTP_USER)}")
@@ -25,6 +25,8 @@ def send_decision_email(to_email: str, paper_id: int, paper_title: str, final_de
 
     decision_label = DECISION_LABELS.get(final_decision, final_decision)
     paper_url = f"{SITE_URL}/paper/{paper_id}"
+    ms_id = f"MS-{paper_id:04d}"
+    tr_id = f"TR-{publication_number:04d}" if publication_number else None
 
     subject = f"[The Turing Review] Editorial Decision: {paper_title}"
 
@@ -43,6 +45,7 @@ def send_decision_email(to_email: str, paper_id: int, paper_title: str, final_de
 
             <div style="background: #f0f4f8; border-left: 4px solid #f6ad55; padding: 16px; margin: 20px 0;">
                 <strong>{paper_title}</strong>
+                <br><span style="color: #627d98; font-size: 13px;">Manuscript {ms_id}{f' &mdash; Publication {tr_id}' if tr_id else ''}</span>
             </div>
 
             <p>Our editorial decision is: <strong style="font-size: 18px;">{decision_label}</strong></p>

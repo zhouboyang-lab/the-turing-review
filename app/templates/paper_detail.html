@@ -14,7 +14,12 @@
                 {% else %}bg-gray-800 text-gray-400{% endif %}">
                 {{ paper.status | replace('_', ' ') | title }}
             </span>
-            <span class="text-sm text-gray-500 font-mono">TR-{{ "%04d"|format(paper.id) }}</span>
+            <div class="text-right">
+                <span class="text-sm text-gray-500 font-mono">MS-{{ "%04d"|format(paper.id) }}</span>
+                {% if paper.publication_number %}
+                <br><span class="text-sm text-amber-400 font-mono font-semibold">TR-{{ "%04d"|format(paper.publication_number) }}</span>
+                {% endif %}
+            </div>
         </div>
         <h1 class="text-3xl font-bold text-gray-100 mb-3">{{ paper.title }}</h1>
         <p class="text-gray-400 mb-2"><strong class="text-gray-300">Authors:</strong> {{ paper.authors }}</p>

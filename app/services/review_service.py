@@ -5,6 +5,7 @@ import json
 import logging
 from datetime import datetime
 
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Paper, Review, EditorialDecision, GuestReviewRecord
@@ -241,6 +242,15 @@ async def run_review_pipeline(paper: Paper, db: AsyncSession):
     }
     paper.status = status_map.get(final_decision, "revision")
     paper.decided_at = datetime.utcnow()
+
+    # 如果被接受，分配发表编号（TR-xxxx）
+    if final_decision == "accept":
+        max_pub = await db.execute(
+            select(func.max(Paper.publication_number))
+        )
+        current_max = max_pub.scalar() or 0
+        paper.publication_number = current_max + 1
+
     await db.commit()
 
     logger.info(f"Paper #{paper.id} '{paper.title}' — decision: {final_decision}")
@@ -248,6 +258,6 @@ async def run_review_pipeline(paper: Paper, db: AsyncSession):
     # 9. 发送邮件通知作者
     if paper.email:
         try:
-            send_decision_email(paper.email, paper.id, paper.title, final_decision)
+            send_decision_email(paper.email, paper.id, paper.title, final_decision, paper.publication_number)
         except Exception as e:
             logger.error(f"Email notification failed: {e}")
