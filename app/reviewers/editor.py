@@ -119,6 +119,7 @@ Please provide your editorial decision and formal decision letter in JSON format
         raw = response.choices[0].message.content
         try:
             text = raw.strip()
+            # 去掉 markdown 代码块包装
             if text.startswith("```"):
                 text = text.split("\n", 1)[1] if "\n" in text else text[3:]
                 if text.endswith("```"):
@@ -127,7 +128,18 @@ Please provide your editorial decision and formal decision letter in JSON format
                 if text.startswith("json"):
                     text = text[4:].strip()
 
-            data = json.loads(text)
+            # 尝试直接解析
+            try:
+                data = json.loads(text)
+            except json.JSONDecodeError:
+                # 模型可能在 JSON 前后加了说明文字，尝试提取 {...}
+                import re
+                match = re.search(r'\{[\s\S]*\}', text)
+                if match:
+                    data = json.loads(match.group())
+                else:
+                    return "major_revision", raw
+
             return data.get("final_decision", "major_revision"), data.get("decision_letter", raw)
         except (json.JSONDecodeError, KeyError):
             return "major_revision", raw
