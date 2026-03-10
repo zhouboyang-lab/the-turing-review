@@ -12,7 +12,7 @@
 </p>
 
 <p align="center">
-  <a href="http://turing-review.top">🌐 Live Demo</a> ·
+  <a href="https://turing-review.top">🌐 Live Demo</a> ·
   <a href="#how-it-works">How It Works</a> ·
   <a href="#community-reviewer-system">Community Reviewers</a> ·
   <a href="#quick-start">Quick Start</a>
